@@ -1,0 +1,32 @@
+{
+  "common": {
+    "pairQuotes": [
+      "BTC",
+      "ETH",
+      "USDT",
+      "BNB",
+      "TUSD",
+      "PAX",
+      "USDC",
+      "XRP",
+      "USDS",
+      "TRX",
+      "BUSD",
+      "NGN",
+      "RUB",
+      "TRY",
+      "EUR",
+      "ZAR",
+      "BKRW",
+      "IDRT",
+      "GBP",
+      "UAH",
+      "BIDR",
+      "AUD",
+      "DAI",
+      "BRL",
+      "BVND",
+      "VAI"
+    ]
+  }
+}

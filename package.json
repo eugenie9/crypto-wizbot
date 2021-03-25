@@ -1,0 +1,26 @@
+{
+  "name": "crypto-wizbot",
+  "version": "1.0.0",
+  "description": "Crypto Info & Charting Bot running on Telegram",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "crypto",
+    "telegram",
+    "bot",
+    "cryptocurrencies"
+  ],
+  "author": "eugenie9",
+  "license": "ISC",
+  "dependencies": {
+    "anychart": "8.3.0",
+    "anychart-nodejs": "1.3.8",
+    "axios": "^0.21.1",
+    "jsdom": "^16.4.0",
+    "lowdb": "^1.0.0",
+    "node-binance-api": "^0.12.4",
+    "node-telegram-bot-api": "github:yagop/node-telegram-bot-api"
+  }
+}
