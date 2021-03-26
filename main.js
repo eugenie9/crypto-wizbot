@@ -22,7 +22,7 @@ let start = async() => {
   
     await binanceUtilities.initExchangeInfo()
     binanceUtilities.startFetchingPrices()
-    botUtilities.sendMessage(371017379, "*System started*", { parse_mode: "Markdown" })
+    botUtilities.sendMessage(config.superuser, "*System started*", { parse_mode: "Markdown" })
     
     updatePriceDatabaseXSecond(30)
   } catch(e) {

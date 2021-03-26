@@ -146,8 +146,7 @@ let editPhoto = (chatId, msgId, photo, form) => {
           let chat = common.editPhotoQueue[0][0];
           let msgIdToEdit = common.editPhotoQueue[0][1];
           let newPhoto = common.editPhotoQueue[0][2];
-          let formToSend = common.photoQueue[0][3];
-          // let formToEdit = common.editPhotoQueue[0][3];
+          let formToSend = common.editPhotoQueue[0][3];
           bot.editMessageMedia({type: "photo", media: newPhoto, fileOptions: {filename: Math.floor(Math.random()*10+1)}}, {chat_id: chat, message_id: msgIdToEdit, ...formToSend})
           common.lastMessageTimestamp = Date.now();
           common.editPhotoQueue.shift();
