@@ -16,6 +16,14 @@ let commands = [
     }
   },
   {
+    path: "mprice.js",
+    triggers: ["/mprice", "/mp"],
+    description: {
+      "en": "/mp BTCUSDT ETHUSDT' returns the price of both",
+      "tr": "/mp BTCUSDT ETHUSDT' her ikisinin de fiyatını döndürür."
+    }
+  },
+  {
     path: "depth.js",
     triggers: ["/depth", "/d"],
     description: {
@@ -31,6 +39,22 @@ let commands = [
       "tr": "ilk 10'un dominans değerini döndürür."
     }
   }, 
+  {
+    path: "trending.js",
+    triggers: ["/trending", "/trend"],
+    description: {
+      "en": "returns the trending coins on CoinGecko",
+      "tr": "CoinGecko üzerinde en popüler koinleri döndürür."
+    }
+  },
+  {
+    path: "info.js",
+    triggers: ["/info", "/i"],
+    description: {
+      "en": "'/info GVT' returns information about GVT",
+      "tr": "'/info GVT' GVT hakkında bilgiler döndürür."
+    }
+  },
   {
     path: "help.js",
     triggers: ["/help", "/h"],

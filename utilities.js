@@ -41,12 +41,32 @@ let shortenNumber = (labelValue) => {
     : Math.abs(Number(labelValue)).toFixed(2);
 }
 
+let findLongest = (pairs) => {
+  let max = 0
+
+  for(let i=0; i<pairs.length; i++) {
+    max = pairs[i].length>max ? pairs[i].length : max
+  }
+
+  return max
+}
+
+let findCoinGeckoID = (symbol) => {
+  for(let pair of common.coingeckoIDs) {
+    if(pair.symbol==symbol) {
+      return pair.id
+    }
+  }
+}
+
 let utilities = {
   waitXSecond,
   howManySpace,
   getQuote,
   countDecimals,
-  shortenNumber
+  shortenNumber,
+  findLongest,
+  findCoinGeckoID
 }
 
 module.exports.utilities = utilities

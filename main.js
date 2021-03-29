@@ -1,6 +1,7 @@
 let { botUtilities } = require("./bot")
 let { binanceUtilities } = require("./binanceEngine")
 let { databaseEngine } = require("./databaseEngine")
+let { coinGeckoUtilities } = require("./coingeckoEngine")
 let { common } = require("./common")
 let config = require("./config")
 
@@ -22,6 +23,7 @@ let start = async() => {
   
     await binanceUtilities.initExchangeInfo()
     binanceUtilities.startFetchingPrices()
+    await coinGeckoUtilities.fetchIDs()
     botUtilities.sendMessage(config.superuser, "*System started*", { parse_mode: "Markdown" })
     
     updatePriceDatabaseXSecond(30)
