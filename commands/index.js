@@ -8,6 +8,38 @@ let commands = [
     }
   },
   {
+    path: "tv.js",
+    triggers: ["/tv", "/tv"],
+    description: {
+      "en": "'/tv GVTBTC 1h pivothl' returns graph with PivotHL and 1 hour interval.",
+      "tr": "'/tv GVTBTC 1h pivothl' PivotHL indikatörü ile 1 saatlik aralıkta grafik döndürür."
+    }
+  },
+  {
+    path: "tvl.js",
+    triggers: ["/tvl", "/tvl"],
+    description: {
+      "en": "'/tvl GVTBTC 1h pivothl' returns graph with light mode.",
+      "tr": "'/tvl GVTBTC 1h pivothl' aydınlık temada grafik döndürür."
+    }
+  },
+  {
+    path: "ta.js",
+    triggers: ["/ta", "/ta"],
+    description: {
+      "en": "'/ta BTCUSDT 15m' returns technical analysis report with 15m interval",
+      "tr": "'/ta BTCUSDT 15m' 15 dakikalık teknik analiz raporu döndürür"
+    }
+  },
+  {
+    path: "heat.js",
+    triggers: ["/heat", "/hmap"],
+    description: {
+      "en": "'/heat' returns heat map",
+      "tr": "'/heat' ısı haritasını döndürür"
+    }
+  },
+  {
     path: "price.js",
     triggers: ["/price","/p"],
     description: {
@@ -26,6 +58,14 @@ let commands = [
   {
     path: "depth.js",
     triggers: ["/depth", "/d"],
+    description: {
+      "en": "'/d GVTBTC' returns the market depth",
+      "tr": "'/d GVTBTC' emir tablosunu döndürür."
+    }
+  },  
+  {
+    path: "bfund.js",
+    triggers: ["/bfund", "/bf"],
     description: {
       "en": "'/d GVTBTC' returns the market depth",
       "tr": "'/d GVTBTC' emir tablosunu döndürür."
@@ -52,7 +92,7 @@ let commands = [
     triggers: ["/info", "/i"],
     description: {
       "en": "'/info GVT' returns information about GVT",
-      "tr": "'/info GVT' GVT hakkında bilgiler döndürür."
+      "tr": "'/info GVT' hakkında bilgiler döndürür."
     }
   },
   {

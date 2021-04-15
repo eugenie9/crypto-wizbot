@@ -10,6 +10,7 @@ let photoQueue = []
 let editPhotoQueue = []
 let lastMessageTimestamp = Date.now()
 let minIntervalSendMessage = 100 // ms
+let heatMapGenerated = 0
 
 // Creates language array
 let language = require("./language/index")
@@ -31,7 +32,8 @@ let common = {
   editPhotoQueue,
   lastMessageTimestamp,
   minIntervalSendMessage,
-  languages
+  languages,
+  heatMapGenerated
 }
 
 module.exports.common = common

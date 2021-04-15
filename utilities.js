@@ -57,6 +57,8 @@ let findCoinGeckoID = (symbol) => {
       return pair.id
     }
   }
+
+  return false
 }
 
 let utilities = {

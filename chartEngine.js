@@ -49,7 +49,7 @@ let sendChart = (chatId, chart, type, pair, interval, edit=false, stock=true) =>
   anychartExport.exportTo(chart, "png").then(
     function (image) {
       let keyboard = []
-      let intervals = ["1m,1h,4h,1d"]
+      let intervals = ["1m","1h","4h","1d"]
       for(let i=0; i<intervals.length; i++) {
         keyboard.push({ text: `${intervals[i]}`, callback_data: `chartUpdate ${type} ${pair} ${interval} ${intervals[i]}`})
       }

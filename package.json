@@ -21,6 +21,7 @@
     "jsdom": "^16.4.0",
     "lowdb": "^1.0.0",
     "node-binance-api": "^0.12.4",
-    "node-telegram-bot-api": "github:yagop/node-telegram-bot-api"
+    "node-telegram-bot-api": "github:yagop/node-telegram-bot-api",
+    "puppeteer": "^8.0.0"
   }
 }

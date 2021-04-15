@@ -94,6 +94,8 @@ let getDepth = async(pair) => await binance.depth(pair, "", 10000)
  */
 let getPrevDay = async(pair) => await binance.prevDay(pair)
 
+let getFundingRates = async() => await binance.futuresFundingRate()
+
 /**
  * Returns boolean if pair exists
  * @param {string} pair 
@@ -138,6 +140,7 @@ let binanceUtilities = {
   getPrice,
   getDepth,
   getPrevDay,
+  getFundingRates,
   doesPairExist,
   doesIntervalExist
 }

@@ -1,6 +1,6 @@
 let { binanceUtilities } = require("../binanceEngine")
 let { botUtilities } = require("../bot")
-const { coinGeckoUtilities } = require("../coingeckoEngine")
+let { coinGeckoUtilities } = require("../coingeckoEngine")
 let { utilities } = require("../utilities")
 let code = "tr"
 
@@ -28,8 +28,8 @@ let execute = async(chatId, args, edit=false) => {
   if(m.ath && m.atl) {
     text += `ATH $: $${ath.usd} (${ath_date.usd.slice(0, ath_date.usd.indexOf("T"))})\n`
     text += `ATL $: $${atl.usd} (${atl_date.usd.slice(0, atl_date.usd.indexOf("T"))})\n`
-    text += `ATH ₿: ${ath.btc}₿  (${ath_date.btc.slice(0, ath_date.btc.indexOf("T"))})\n`
-    text += `ATL ₿: ${atl.btc}₿  (${atl_date.btc.slice(0, atl_date.btc.indexOf("T"))})\n`
+    text += `ATH ₿: ${ath.btc}₿ (${ath_date.btc.slice(0, ath_date.btc.indexOf("T"))})\n`
+    text += `ATL ₿: ${atl.btc}₿ (${atl_date.btc.slice(0, atl_date.btc.indexOf("T"))})\n`
   }
 
   if(m.roi) {
