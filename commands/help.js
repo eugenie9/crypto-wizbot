@@ -1,33 +1,32 @@
-let { botUtilities } = require("../bot")
+const { botUtilities } = require("../bot");
 
-let execute = async(chatId, args, edit=false) => {
+const execute = async (chatId, args, edit = false) => {
   // Default: english
-  let lang  = args.length<2 ? "en" : args[1]
+  let lang = args.length < 2 ? "en" : args[1];
 
-  let languages = require("../language/index")
-  let allowedLanguages = []
-  for(let l of languages) {
-    allowedLanguages.push(l.shortcut)
+  const languages = require("../language/index");
+  const allowedLanguages = [];
+  for (const l of languages) {
+    allowedLanguages.push(l.shortcut);
   }
 
   // If user sends an invalid shortcut, english is set as a language.
-  lang = allowedLanguages.includes(lang) ? lang : "en"
+  lang = allowedLanguages.includes(lang) ? lang : "en";
 
-  let commands = require("./index")
-  let text = ""
+  const commands = require("./index");
+  let text = "";
 
-  if(allowedLanguages.includes(lang)) {
-    for(let c of commands) {
-      text += `${c.triggers[0]} - ${c.description[lang]}\n`
+  if (allowedLanguages.includes(lang)) {
+    for (const c of commands) {
+      text += `${c.triggers[0]} - ${c.description[lang]}\n`;
     }
-  } 
+  }
 
-  botUtilities.sendMessage(chatId, text)
-}
+  botUtilities.sendMessage(chatId, text);
+};
 
-let command = {
-  execute
-}
+const command = {
+  execute,
+};
 
-module.exports.command = command
-
+module.exports.command = command;

@@ -1,46 +1,71 @@
-const fs = require("fs")
-let JSDOM = require('jsdom').JSDOM;
-let jsdom = new JSDOM('<body><div id="container"></div></body>', {runScripts: 'dangerously'});
-let window = jsdom.window;
-let anychart = require('anychart')(window);
-let anychartExport = require('anychart-nodejs')(anychart);
-let { botUtilities } = require("./bot")
+const fs = require("fs");
+const JSDOM = require("jsdom").JSDOM;
+const jsdom = new JSDOM('<body><div id="container"></div></body>', {
+  runScripts: "dangerously",
+});
+const window = jsdom.window;
+const anychart = require("anychart")(window);
+const anychartExport = require("anychart-nodejs")(anychart);
+const { botUtilities } = require("./bot");
 
-let getDataTable = () => anychart.data.table();
+const getDataTable = () => anychart.data.table();
 
-let getLinearScale = () => anychart.scales.linear();
+const getLinearScale = () => anychart.scales.linear();
 
 /**
- * Specify how many chart you want 
- * @param {Integer} axis 
+ * Specify how many chart you want
+ * @param {Integer} axis
  */
-let getStockChart = (axis) => {
-  let chart = anychart.stock(true);
+const getStockChart = (axis) => {
+  const chart = anychart.stock(true);
   chart.scroller().enabled(false);
 
-  for(let i=0; i<axis; i++) {
+  for (let i = 0; i < axis; i++) {
     chart.plot(i).dataArea().background().enabled(true);
     chart.plot(i).dataArea().background().stroke("2 black");
   }
 
-  return chart
-}
+  return chart;
+};
 
 /**
  * Generates JPG image and saves it to a file, sends, and deletes it
- * @param {chart} chart 
+ * @param {chart} chart
  */
-let sendChart = (chatId, chart, type, pair, interval, edit=false, stock=true) => {
+const sendChart = (
+  chatId,
+  chart,
+  type,
+  pair,
+  interval,
+  edit = false,
+  stock = true
+) => {
   chart.margin(0, 0, 0, 15);
   chart.bounds(0, 0, 960, 720);
   chart.container("container");
   chart.draw();
 
-  if(stock) {
-    let ranges = [["1m", "minute", 120], ["3m", "minute", 3*120], ["5m", "minute", 5*120], ["15m", "minute", 15*120], ["30m", "minute", 30*120], ["1h", "hour", 120], ["2h", "hour", 2*120], ["4h", "hour", 4*120], ["6h", "hour", 6*120], ["8h", "hour", 8*120], ["12h", "hour", 12*120], ["1d", "day", 120], ["3d", "day", 3*120], ["1w", "day", 7*120]]
+  if (stock) {
+    const ranges = [
+      ["1m", "minute", 120],
+      ["3m", "minute", 3 * 120],
+      ["5m", "minute", 5 * 120],
+      ["15m", "minute", 15 * 120],
+      ["30m", "minute", 30 * 120],
+      ["1h", "hour", 120],
+      ["2h", "hour", 2 * 120],
+      ["4h", "hour", 4 * 120],
+      ["6h", "hour", 6 * 120],
+      ["8h", "hour", 8 * 120],
+      ["12h", "hour", 12 * 120],
+      ["1d", "day", 120],
+      ["3d", "day", 3 * 120],
+      ["1w", "day", 7 * 120],
+    ];
 
-    for(let i=0; i<ranges.length; i++) {
-      if(interval == ranges[i][0]) {
+    for (let i = 0; i < ranges.length; i++) {
+      if (interval == ranges[i][0]) {
         chart.selectRange(ranges[i][1], ranges[i][2], true);
       }
     }
@@ -48,19 +73,29 @@ let sendChart = (chatId, chart, type, pair, interval, edit=false, stock=true) =>
 
   anychartExport.exportTo(chart, "png").then(
     function (image) {
-      let keyboard = []
-      let intervals = ["1m","1h","4h","1d"]
-      for(let i=0; i<intervals.length; i++) {
-        keyboard.push({ text: `${intervals[i]}`, callback_data: `chartUpdate ${type} ${pair} ${interval} ${intervals[i]}`})
+      const keyboard = [];
+      const intervals = ["1m", "1h", "4h", "1d"];
+      for (let i = 0; i < intervals.length; i++) {
+        keyboard.push({
+          text: `${intervals[i]}`,
+          callback_data: `chartUpdate ${type} ${pair} ${interval} ${intervals[i]}`,
+        });
       }
 
-
-      if(edit) {
-        botUtilities.editPhoto(chatId, edit.msgId, image, { caption: "*Hey*", parse_mode: "Markdown", reply_markup: { inline_keyboard: [keyboard] } })
+      if (edit) {
+        botUtilities.editPhoto(chatId, edit.msgId, image, {
+          caption: "*Hey*",
+          parse_mode: "Markdown",
+          reply_markup: { inline_keyboard: [keyboard] },
+        });
       } else {
-        botUtilities.sendPhoto(chatId, image, { caption: "*Hey*", parse_mode: "Markdown", reply_markup: { inline_keyboard: [keyboard] } });
+        botUtilities.sendPhoto(chatId, image, {
+          caption: "*Hey*",
+          parse_mode: "Markdown",
+          reply_markup: { inline_keyboard: [keyboard] },
+        });
       }
-      return
+      return;
       // "\n\n[Join WizScalp to get free signals](https://t.me/WizScalp)";
     },
     function (generationError) {
@@ -81,20 +116,20 @@ let sendChart = (chatId, chart, type, pair, interval, edit=false, stock=true) =>
       }
     });
   }
-}
+};
 
 // -----> @scratis
-let getScaledData = (data, globalScale) => {
+const getScaledData = (data, globalScale) => {
   if (isArray(data))
     for (let i = 0; i < data.length; i++)
       if (isArray(data[i]))
         for (let j = 1; j < 5; j++)
           data[i][j] = parseInt(pad(data[i][j], globalScale));
   return data;
-}
+};
 // --> new
-let getScaledData_new = (data) => {
-  let result = {
+const getScaledData_new = (data) => {
+  const result = {
     maxVolume: 0,
     data: data,
   };
@@ -109,21 +144,17 @@ let getScaledData_new = (data) => {
           result.maxVolume = data[i][5];
       }
   return result;
-}
-let getMaxVolume = (data) => {
+};
+const getMaxVolume = (data) => {
   let maxVolume = 1;
   if (isArray(data))
     for (let i = 0; i < data.length; i++)
-      if (
-        isArray(data[i]) &&
-        data[i].length > 5 &&
-        data[i][5] > maxVolume
-      )
+      if (isArray(data[i]) && data[i].length > 5 && data[i][5] > maxVolume)
         maxVolume = data[i][5];
 
   return maxVolume;
-}
-let getMaxPrice = (data) => {
+};
+const getMaxPrice = (data) => {
   let maxPrice = 0;
   let startIndex = 0;
   if (isArray(data)) {
@@ -131,19 +162,15 @@ let getMaxPrice = (data) => {
       startIndex = data.length - 120;
     }
     for (let i = startIndex; i < data.length; i++) {
-      if (
-        isArray(data[i]) &&
-        data[i].length > 5 &&
-        data[i][1] > maxPrice
-      ) {
+      if (isArray(data[i]) && data[i].length > 5 && data[i][1] > maxPrice) {
         maxPrice = data[i][1];
       }
     }
   }
 
   return maxPrice;
-}
-let getMinPrice = (data) => {
+};
+const getMinPrice = (data) => {
   let minPrice = 1000000000000000000000000000;
   let startIndex = 0;
   if (isArray(data)) {
@@ -151,32 +178,27 @@ let getMinPrice = (data) => {
       startIndex = data.length - 120;
     }
     for (let i = startIndex; i < data.length; i++) {
-      if (
-        isArray(data[i]) &&
-        data[i].length > 5 &&
-        data[i][2] < minPrice
-      ) {
+      if (isArray(data[i]) && data[i].length > 5 && data[i][2] < minPrice) {
         minPrice = data[i][2];
       }
     }
   }
 
   return minPrice;
-}
+};
 // <-- new
-let toStr = (n) => {
+const toStr = (n) => {
   let nStr = n.toString().toLowerCase();
 
   if (nStr.indexOf("e-") > -1) {
-    let arr = nStr.split("e-");
-    let p1 = arr[0];
-    let p2 = parseInt(arr[1]);
+    const arr = nStr.split("e-");
+    const p1 = arr[0];
+    const p2 = parseInt(arr[1]);
 
     let buffer = "0.";
     for (let i = 0; i < p2 - 1; i++) buffer += "0";
 
-    for (let i = 0; i < p1.length; i++)
-      if (p1[i] !== ".") buffer += p1[i];
+    for (let i = 0; i < p1.length; i++) if (p1[i] !== ".") buffer += p1[i];
 
     nStr = buffer;
   } else if (nStr.indexOf("e") > -1) {
@@ -184,11 +206,11 @@ let toStr = (n) => {
     if (nStr.indexOf("e+") > -1) arr = nStr.split("e+");
     else arr = nStr.split("e");
 
-    let p1 = arr[0];
-    let p2 = parseInt(arr[1]);
-    let arr2 = p1.split(".");
-    let p11 = arr2[0];
-    let p12 = arr2[1];
+    const p1 = arr[0];
+    const p2 = parseInt(arr[1]);
+    const arr2 = p1.split(".");
+    const p11 = arr2[0];
+    const p12 = arr2[1];
 
     if (p12 && p12.length < p2) {
       for (let i = 0; i < p12.length; i++) {
@@ -209,10 +231,10 @@ let toStr = (n) => {
   }
 
   return nStr;
-}
-let pad = (n, len) => {
-  let nStr = toStr(n);
-  let periodPos = nStr.indexOf(".");
+};
+const pad = (n, len) => {
+  const nStr = toStr(n);
+  const periodPos = nStr.indexOf(".");
   let intPart = nStr;
   let floatPart = "";
 
@@ -223,10 +245,10 @@ let pad = (n, len) => {
 
   for (let i = floatPart.length; i < len; i++) floatPart += "0";
   return parseInt(intPart + floatPart);
-}
-let unpad = (n, len) => {
+};
+const unpad = (n, len) => {
   let s = n.toString();
-  let parts = s.split(".");
+  const parts = s.split(".");
   s = parts[0];
   f = parts[1];
   let q = "";
@@ -246,15 +268,14 @@ let unpad = (n, len) => {
   if (q) {
     if (q.indexOf(".") < 0) result = q;
     else {
-      let qParts = q.split(".");
-      let qInt = qParts[0];
-      let qFloat = qParts[1];
+      const qParts = q.split(".");
+      const qInt = qParts[0];
       let qResultFloat = "";
 
-      if (!!qFloat) {
+      if (!!qParts[1]) {
         let notZero = false;
-        for (let i = qFloat.length - 1; i > -1; i--) {
-          let digit = qFloat[i];
+        for (let i = qParts[1].length - 1; i > -1; i--) {
+          let digit = qParts[1][i];
           if (notZero || (notZero = digit != "0"))
             qResultFloat = digit + qResultFloat;
         }
@@ -265,13 +286,13 @@ let unpad = (n, len) => {
   }
 
   return result;
-}
-let isArray = (input) => {
-  return ( input && Object.prototype.toString.call(input) === "[object Array]");
-}
+};
+const isArray = (input) => {
+  return input && Object.prototype.toString.call(input) === "[object Array]";
+};
 // <----- @scratis
 
-let chartUtilities = {
+const chartUtilities = {
   getDataTable,
   getLinearScale,
   getStockChart,
@@ -283,7 +304,7 @@ let chartUtilities = {
   getScaledData,
   getMaxVolume,
   getMaxPrice,
-  getMinPrice
-}
+  getMinPrice,
+};
 
-module.exports.chartUtilities = chartUtilities  
+module.exports.chartUtilities = chartUtilities;

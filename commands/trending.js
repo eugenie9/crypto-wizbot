@@ -1,36 +1,37 @@
-let { botUtilities } = require("../bot")
-const { coinGeckoUtilities } = require("../coingeckoEngine")
-let { utilities } = require("../utilities")
-let code = "tr"
+const { botUtilities } = require("../bot");
+const { coinGeckoUtilities } = require("../coingeckoEngine");
+const { utilities } = require("../utilities");
+const code = "tr";
 
-let execute = async(chatId, args, edit=false) => {
+const execute = async (chatId, args, edit = false) => {
+  const data = await coinGeckoUtilities.getTrendingCoins();
+  const names = [];
+  const symbols = [];
 
-  let data = await coinGeckoUtilities.getTrendingCoins()
-  let names = []
-  let symbols = []
-
-  for(let c of data.coins) {
-    names.push(c.item.name)
-    symbols.push(c.item.symbol)
+  for (const c of data.coins) {
+    names.push(c.item.name);
+    symbols.push(c.item.symbol);
   }
 
-  let maxN = utilities.findLongest(names)
-  let maxS = utilities.findLongest(symbols)
+  const maxN = utilities.findLongest(names);
+  const maxS = utilities.findLongest(symbols);
 
-  let text = "<code>🔥Trending Coins\n\n"
+  let text = "<code>🔥Trending Coins\n\n";
 
-  for(let c of data.coins) {
-    c = c.item
-    text += `${c.name}${utilities.howManySpace(c.name,maxN)} (${c.symbol}) ${utilities.howManySpace(c.symbol, maxS)}#${c.market_cap_rank}\n`
+  for (let c of data.coins) {
+    c = c.item;
+    text += `${c.name}${utilities.howManySpace(c.name, maxN)} (${
+      c.symbol
+    }) ${utilities.howManySpace(c.symbol, maxS)}#${c.market_cap_rank}\n`;
   }
 
-  text += "</code>"
-  
-  botUtilities.sendMessage(chatId, text, {parse_mode: "HTML"})
-}
+  text += "</code>";
 
-let command = {
-  execute
-}
+  botUtilities.sendMessage(chatId, text, { parse_mode: "HTML" });
+};
 
-module.exports.command = command
+const command = {
+  execute,
+};
+
+module.exports.command = command;

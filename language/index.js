@@ -1,14 +1,14 @@
-let languages = [
+const languages = [
   {
     path: "turkish.js",
     shortcut: "tr",
-    name: "Türkçe"
+    name: "Türkçe",
   },
   {
     path: "english.js",
     shortcut: "en",
-    name: "English"
-  }
-]
+    name: "English",
+  },
+];
 
-module.exports = languages
+module.exports = languages;

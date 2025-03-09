@@ -1,38 +1,45 @@
-let { binanceUtilities } = require("../binanceEngine")
-let { chartUtilities } = require("../chartEngine")
-let { common } = require("../common")
-let { botUtilities } = require("../bot")
-let code = "tr"
+const { binanceUtilities } = require("../binanceEngine");
+const { chartUtilities } = require("../chartEngine");
+const { common } = require("../common");
+const { botUtilities } = require("../bot");
+const code = "tr";
 
-let execute = async(chatId, args, edit=false) => {
-  let pair, interval
-  if(args.length==1) args=["/chart", "BTCUSDT", "1h"]
-  if(args.length==2) args[2]="1h"
-  
-  if(edit) {
-    pair = (edit.pair).toUpperCase()
-    interval = edit.interval
+const execute = async (chatId, args, edit = false) => {
+  let pair, interval;
+  if (args.length == 1) args = ["/chart", "BTCUSDT", "1h"];
+  if (args.length == 2) args[2] = "1h";
+
+  if (edit) {
+    pair = edit.pair.toUpperCase();
+    interval = edit.interval;
   } else {
-    pair = args[1].toUpperCase()
-    interval = args[2]
+    pair = args[1].toUpperCase();
+    interval = args[2];
   }
 
-  if(!binanceUtilities.doesPairExist(pair)) {
-    botUtilities.sendMessage(chatId, common.languages[code].errorMessages["pairDoesNotExist"])
-    return
+  if (!binanceUtilities.doesPairExist(pair)) {
+    botUtilities.sendMessage(
+      chatId,
+      common.languages[code].errorMessages["pairDoesNotExist"]
+    );
+    return;
   }
 
-  if(!binanceUtilities.doesIntervalExist(interval)) {
-    botUtilities.sendMessage(chatId, common.languages[code].errorMessages["intervalDoesNotExist"])
+  if (!binanceUtilities.doesIntervalExist(interval)) {
+    botUtilities.sendMessage(
+      chatId,
+      common.languages[code].errorMessages["intervalDoesNotExist"]
+    );
   }
 
-  let ticks = await binanceUtilities.getTicks(pair, interval, 200)
-  let globalScale = 8;
-  let candlestick = chartUtilities.getDataTable()
-  let data = [];
+  const ticks = await binanceUtilities.getTicks(pair, interval, 200);
+  const globalScale = 8;
+  const candlestick = chartUtilities.getDataTable();
+  const data = [];
 
   for (i = 0; i < ticks.length; i++) {
-    color = parseFloat(ticks[i][1]) > parseFloat(ticks[i][4]) ? "#ff0000" : "#00ff00"; // volume bar colors
+    color =
+      parseFloat(ticks[i][1]) > parseFloat(ticks[i][4]) ? "#ff0000" : "#00ff00"; // volume bar colors
 
     data.push([
       parseFloat(ticks[i][0]),
@@ -49,27 +56,32 @@ let execute = async(chatId, args, edit=false) => {
     ]);
   }
 
-  let plotData = chartUtilities.getScaledData(data, globalScale);
-  let maxVolume = chartUtilities.getMaxVolume(plotData);
+  const plotData = chartUtilities.getScaledData(data, globalScale);
+  const maxVolume = chartUtilities.getMaxVolume(plotData);
 
   candlestick.addData(plotData);
 
-  let chart = chartUtilities.getStockChart(3)
-  let plot = chart.plot(0)
+  const chart = chartUtilities.getStockChart(3);
+  const plot = chart.plot(0);
 
   // Volume bars
-  let volume = candlestick.mapAs();
+  const volume = candlestick.mapAs();
   volume.addField("value", 5);
   volume.addField("fill", 6);
-  let volumeSeries = plot.column(volume);
-  let extraYScale = chartUtilities.getLinearScale()
+  const volumeSeries = plot.column(volume);
+  const extraYScale = chartUtilities.getLinearScale();
   extraYScale.minimum(0);
   extraYScale.maximum(maxVolume * 4);
-  let extraYAxis = plot.yAxis(1);
+  const extraYAxis = plot.yAxis(1);
   extraYAxis.orientation("right");
   extraYAxis.scale(extraYScale);
   volumeSeries.yScale(extraYScale);
-  plot.yAxis(1).labels().format(function () { return ""; });
+  plot
+    .yAxis(1)
+    .labels()
+    .format(function () {
+      return "";
+    });
   // Volume bars
 
   // RSI mapping
@@ -83,23 +95,23 @@ let execute = async(chatId, args, edit=false) => {
   mapping_rsi80.addField("value", 10);
   // RSI mapping
 
-  let mapping = candlestick.mapAs({open: 1, high: 2, low: 3, close: 4});
+  const mapping = candlestick.mapAs({ open: 1, high: 2, low: 3, close: 4 });
 
   // First Plot
-  let ohlcSeries = plot.candlestick(mapping);
+  const ohlcSeries = plot.candlestick(mapping);
   ohlcSeries.risingFill("green");
   ohlcSeries.fallingFill("red");
   plot.yGrid(true).xGrid(true).yMinorGrid(true).xMinorGrid(true);
-  let sma50 = plot.sma(mapping, 50).series();
+  const sma50 = plot.sma(mapping, 50).series();
   sma50.stroke("1 orange");
-  let ema20 = plot.ema(mapping, 20).series();
+  const ema20 = plot.ema(mapping, 20).series();
   ema20.stroke("1 blue");
   chart.plot(0).xAxis().showHelperLabel(false);
   plot.yScale().stackMode("value");
   // First Plot
 
   // SMA-EMA legend
-  let legend = plot.legend();
+  const legend = plot.legend();
   legend.positionMode("inside");
   legend.title(false);
   legend.position("top");
@@ -111,61 +123,100 @@ let execute = async(chatId, args, edit=false) => {
     ];
   });
 
-  let background = legend.background();
+  const background = legend.background();
   background.fill(["#efeaea"]);
   background.enabled(true);
   // SMA-EMA legend
 
-  let title = `${pair} - ${interval} ( @Crypto_WizBot )`;
+  const title = `${pair} - ${interval} ( @Crypto_WizBot )`;
   chart.title(title);
 
   // Second Plot
-  let secondPlot = chart.plot(1)
+  const secondPlot = chart.plot(1);
   secondPlot.height("15%");
-  let rsi_20 = secondPlot.line(mapping_rsi20);
+  const rsi_20 = secondPlot.line(mapping_rsi20);
   rsi_20.stroke("1 red");
-  let rsi_30 = secondPlot.line(mapping_rsi30);
+  const rsi_30 = secondPlot.line(mapping_rsi30);
   rsi_30.stroke("1 green");
-  let rsi_70 = secondPlot.line(mapping_rsi70);
+  const rsi_70 = secondPlot.line(mapping_rsi70);
   rsi_70.stroke("1 green");
-  let rsi_80 = secondPlot.line(mapping_rsi80);
+  const rsi_80 = secondPlot.line(mapping_rsi80);
   rsi_80.stroke("1 red");
-  let rsi = secondPlot.rsi(mapping, 14).series();
+  const rsi = secondPlot.rsi(mapping, 14).series();
   rsi.stroke("3 #64b5f6");
   secondPlot.yAxis().title("RSI");
-  secondPlot.yAxis().title().fontColor("Black").fontFamily("Arial")
-    .fontSize(13).fontStyle("normal").margin(-15).useHtml(false);
+  secondPlot
+    .yAxis()
+    .title()
+    .fontColor("Black")
+    .fontFamily("Arial")
+    .fontSize(13)
+    .fontStyle("normal")
+    .margin(-15)
+    .useHtml(false);
   chart.plot(1).legend(false);
   chart.plot(1).xAxis().labels(false);
   chart.plot(1).xAxis().minorLabels(false);
   // Second Plot
 
   // Third Plot
-  let thirdPlot = chart.plot(2);
+  const thirdPlot = chart.plot(2);
   thirdPlot.height("15%");
-  let macd_all_lines = thirdPlot.macd(mapping, 12, 26, 9, "line", "line", "column");
+  const macd_all_lines = thirdPlot.macd(
+    mapping,
+    12,
+    26,
+    9,
+    "line",
+    "line",
+    "column"
+  );
   macd_all_lines.macdSeries().stroke("2 blue");
   macd_all_lines.signalSeries().stroke("2 #f22495");
   chart.plot(2).legend(false);
   chart.plot(2).xAxis().labels(false);
   chart.plot(2).xAxis().minorLabels(false);
   thirdPlot.yAxis().title("MACD");
-  thirdPlot.yAxis().title().fontColor("Black").fontFamily("Arial")
-    .fontSize(13).fontStyle("normal").margin(-15).useHtml(false);
+  thirdPlot
+    .yAxis()
+    .title()
+    .fontColor("Black")
+    .fontFamily("Arial")
+    .fontSize(13)
+    .fontStyle("normal")
+    .margin(-15)
+    .useHtml(false);
   // Third Plot
 
   // Unpadding for axis labels values
-  chart.plot(0).priceIndicator().value("last-visible").label().format(function () { return chartUtilities.unpad(this.value, globalScale); })
-  chart.plot(0).yAxis().labels().format(function () { return chartUtilities.unpad(this.value, globalScale) });
-  chart.plot(2).yAxis().labels().format(function () { return chartUtilities.unpad(this.value, globalScale) });
-  
-  chartUtilities.sendChart(chatId, chart, "chart", pair, interval, edit)
-}
+  chart
+    .plot(0)
+    .priceIndicator()
+    .value("last-visible")
+    .label()
+    .format(function () {
+      return chartUtilities.unpad(this.value, globalScale);
+    });
+  chart
+    .plot(0)
+    .yAxis()
+    .labels()
+    .format(function () {
+      return chartUtilities.unpad(this.value, globalScale);
+    });
+  chart
+    .plot(2)
+    .yAxis()
+    .labels()
+    .format(function () {
+      return chartUtilities.unpad(this.value, globalScale);
+    });
 
-let command = {
-  execute
-}
+  chartUtilities.sendChart(chatId, chart, "chart", pair, interval, edit);
+};
 
-module.exports.command = command
+const command = {
+  execute,
+};
 
-
+module.exports.command = command;
