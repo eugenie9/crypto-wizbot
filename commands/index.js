@@ -16,14 +16,6 @@ const commands = [
     },
   },
   {
-    path: "tvl.js",
-    triggers: ["/tvl", "/tvl"],
-    description: {
-      en: "'/tvl GVTBTC 1h pivothl' returns graph with light mode.",
-      tr: "'/tvl GVTBTC 1h pivothl' aydınlık temada grafik döndürür.",
-    },
-  },
-  {
     path: "ta.js",
     triggers: ["/ta", "/ta"],
     description: {
@@ -93,6 +85,14 @@ const commands = [
     description: {
       en: "'/info GVT' returns information about GVT",
       tr: "'/info GVT' hakkında bilgiler döndürür.",
+    },
+  },
+  {
+    path: "fear.js",
+    triggers: ["/fear", "/fgi"],
+    description: {
+      en: "returns the Crypto Fear & Greed Index with historical comparison",
+      tr: "Kripto Korku ve Açgözlülük Endeksi'ni tarihsel karşılaştırma ile döndürür.",
     },
   },
   {
