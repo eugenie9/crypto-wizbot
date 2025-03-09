@@ -1,9 +1,8 @@
 process.env.NTBA_FIX_350 = "1";
 const { botUtilities } = require("../bot");
 const puppeteer = require("puppeteer");
-const axios = require("axios");
-const { utilities } = require("../utilities");
-
+const utilities = require("../utilities");
+const tradingviewEngine = require("../tradingviewEngine");
 const intervals = [
   ["1m", 1],
   ["3m", 3],
@@ -99,7 +98,7 @@ const types = [
 
 const execute = async (chatId, args, edit = false) => {
   let pair = args.length < 2 ? "btcusdt" : args[1];
-  const theme = args.includes("light") ? "light" : "dark";
+  const theme = args.includes("dark") ? "dark" : "light";
   const details = args.includes("details") ? `"details": true,` : "";
 
   let interval = "";
@@ -122,29 +121,7 @@ const execute = async (chatId, args, edit = false) => {
   if (interval == "") interval = 60;
   if (type == -1) type = 1;
 
-  const response = await axios.get(
-    `https://symbol-search.tradingview.com/symbol_search/?text=${pair.toLowerCase()}&hl=1&exchange`
-  );
-
-  let r;
-  for (let i = 0; i < response.data.length; i++) {
-    r = response.data[i];
-    if (r.type == "crypto") {
-      r.symbol = r.symbol.replace("<em>", "");
-      r.symbol = r.symbol.replace("</em>", "");
-      i = response.data.length;
-    }
-
-    if (i == response.data.length - 1) {
-      r = response.data[0];
-      r.symbol = r.symbol.replace("<em>", "");
-      r.symbol = r.symbol.replace("</em>", "");
-    }
-  }
-
-  if (!response.data.length) {
-    r = { symbol: "BTCUSDT", exchange: "BINANCE" };
-  }
+  const r = await tradingviewEngine.symbolSearch(pair);
 
   //<style>#wizbot {color:white; position: fixed; z-index: 200; top: 30; right: 230}</style>
   // <div id="wizbot">@Crypto_WizBot</div>
@@ -154,8 +131,8 @@ const execute = async (chatId, args, edit = false) => {
   <script type="text/javascript">
   new TradingView.widget(
   {
-  "width": 1025,
-  "height": 767,
+  "width": 1536,
+  "height": 1149,
   "symbol": "${r.exchange}:${r.symbol}",
   "interval": "${String(interval)}",
   "timezone": "Etc/UTC",
@@ -189,8 +166,8 @@ const execute = async (chatId, args, edit = false) => {
   const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
   const page = await browser.newPage();
   await page.setViewport({
-    width: 1041,
-    height: 783,
+    width: 1552,
+    height: 1165,
     deviceScaleFactor: 1,
   });
 

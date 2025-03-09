@@ -1,9 +1,10 @@
 process.env.NTBA_FIX_350 = "1";
 const { botUtilities } = require("../bot");
 const puppeteer = require("puppeteer");
-const axios = require("axios");
 const intervals = ["1m", "5m", "15m", "1h", "4h", "1D", "1W", "1M"];
 const { utilities } = require("../utilities");
+const tradingviewEngine = require("../tradingviewEngine");
+
 const execute = async (chatId, args, edit = false) => {
   let pair = args.length < 2 ? "btcusdt" : args[1];
 
@@ -16,17 +17,7 @@ const execute = async (chatId, args, edit = false) => {
 
   if (interval == "") interval = "1h";
 
-  const response = await axios.get(
-    `https://symbol-search.tradingview.com/symbol_search/?text=${pair.toLowerCase()}&hl=1&exchange`
-  );
-  let r;
-  if (response.data.length) {
-    r = response.data[0];
-    r.symbol = r.symbol.replace("<em>", "");
-    r.symbol = r.symbol.replace("</em>", "");
-  } else {
-    r = { symbol: "BTCUSDT", exchange: "BINANCE" };
-  }
+  const r = await tradingviewEngine.symbolSearch(pair);
 
   const content = `<div class="tradingview-widget-container">
     <div class="tradingview-widget-container__widget"></div>
