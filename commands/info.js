@@ -1,13 +1,23 @@
-const { binanceUtilities } = require("../binanceEngine");
 const { botUtilities } = require("../bot");
 const { coinGeckoUtilities } = require("../coingeckoEngine");
-const { utilities } = require("../utilities");
+const utilities = require("../utilities");
+const { common } = require("../common");
 const code = "tr";
 
 const execute = async (chatId, args, edit = false) => {
   let text = "<code>";
   const symbol = args.length == 1 ? "btc" : args[1].toLowerCase();
   const id = utilities.findCoinGeckoID(symbol);
+
+  if (!id) {
+    botUtilities.sendMessage(
+      chatId,
+      common.languages[code].errorMessages.pairDoesNotExist,
+      { parse_mode: "HTML" }
+    );
+    return;
+  }
+
   const data = await coinGeckoUtilities.getPairData(id);
 
   text += `${data.name} (${data.symbol.toUpperCase()}) #${
