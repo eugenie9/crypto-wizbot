@@ -1,6 +1,6 @@
 const { botUtilities } = require("../bot");
 const puppeteer = require("puppeteer");
-const { utilities } = require("../utilities");
+const utilities = require("../utilities");
 const { common } = require("../common");
 const FileSync = require("lowdb/adapters/FileSync");
 

@@ -1,6 +1,6 @@
 const { binanceUtilities } = require("../binanceEngine");
 const { botUtilities } = require("../bot");
-const { utilities } = require("../utilities");
+const utilities = require("../utilities");
 const axios = require("axios");
 
 const execute = async (chatId, args, edit = false) => {

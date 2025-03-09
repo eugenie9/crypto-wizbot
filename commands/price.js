@@ -2,7 +2,7 @@ const { coinGeckoUtilities } = require("../coingeckoEngine");
 const { binanceUtilities } = require("../binanceEngine");
 const { common } = require("../common");
 const { botUtilities } = require("../bot");
-const { utilities } = require("../utilities");
+const utilities = require("../utilities");
 const code = "tr";
 
 const execute = async (chatId, args, edit = false) => {
