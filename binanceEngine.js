@@ -2,6 +2,7 @@ const binanceLib = require("node-binance-api");
 const { common } = require("./common");
 const { databaseEngine } = require("./databaseEngine");
 const markets = [];
+const quotes = {};
 
 const binance = new binanceLib({
   reconnect: true,
@@ -45,6 +46,12 @@ const initExchangeInfo = async () => {
           common.pairQuotes.push(obj.quoteAsset);
           databaseEngine.addPairQuote(obj.quoteAsset);
         }
+
+        if (!quotes[obj.baseAsset]) {
+          quotes[obj.baseAsset] = [];
+        }
+
+        quotes[obj.baseAsset].push(obj.quoteAsset);
 
         common.pairsInfo[obj.symbol].filters = filters;
         common.pairsInfo[obj.symbol].isMarginTradingAllowed =
@@ -106,12 +113,23 @@ const getFundingRates = async () => await binance.futuresFundingRate();
  */
 const doesPairExist = (pair) => {
   for (const p of Object.values(common.pairsInfo)) {
-    if (
-      pair == p.tokenName + p.marketName ||
-      pair + "BTC" == p.tokenName + p.marketName
-    ) {
+    if (pair == p.tokenName + p.marketName) {
       return p.tokenName + p.marketName;
     }
+  }
+
+  const quote = quotes[pair.split("")[0]];
+
+  if (quote?.length > 0) {
+    if (quote.includes("USDT")) {
+      return pair + "USDT";
+    }
+
+    if (quote.includes("BTC")) {
+      return pair + "BTC";
+    }
+
+    return pair + quote[0];
   }
 
   return false;
