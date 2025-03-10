@@ -1,7 +1,7 @@
 process.env.NTBA_FIX_350 = "1";
 const { botUtilities } = require("../bot");
-const puppeteer = require("puppeteer");
-const utilities = require("../utilities");
+const { chromium } = require("playwright");
+
 const tradingviewEngine = require("../tradingviewEngine");
 const intervals = [
   ["1m", 1],
@@ -113,12 +113,12 @@ const execute = async (chatId, args, edit = false) => {
   args.forEach((a) => {
     intervals.forEach((i) => {
       if (a == i[0]) {
-        interval = i[1];
+        interval = String(i[1]);
       }
     });
   });
 
-  if (interval == "") interval = 60;
+  if (interval == "") interval = "60";
   if (type == -1) type = 1;
 
   const r = await tradingviewEngine.symbolSearch(pair);
@@ -163,18 +163,26 @@ const execute = async (chatId, args, edit = false) => {
   </script>
   </div>`;
 
-  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
-  const page = await browser.newPage();
-  await page.setViewport({
+  const browser = await chromium.launch({ args: ["--no-sandbox"] });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.setViewportSize({
     width: 1552,
     height: 1165,
-    deviceScaleFactor: 1,
   });
 
   await page.setContent(content);
-  await utilities.waitXSecond(2);
-  const base = await page.screenshot({ encoding: "base64" });
-  botUtilities.sendPhoto(chatId, Buffer.from(base, "base64"));
+  // Wait for the TradingView widget to be fully loaded
+  await page.waitForSelector("#tradingview_53b38", {
+    state: "attached",
+    timeout: 5000,
+  });
+  // Give the chart a moment to render
+  await page.waitForTimeout(2000);
+
+  const screenshotPath = `./tv_${Date.now()}.png`;
+  await page.screenshot({ path: screenshotPath });
+  botUtilities.sendPhoto(chatId, screenshotPath);
   await browser.close();
 };
 

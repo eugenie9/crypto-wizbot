@@ -76,3 +76,4 @@ typings/
 .fusebox/
 config.js
 priceDatabase.json
+*.png

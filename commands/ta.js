@@ -1,8 +1,7 @@
 process.env.NTBA_FIX_350 = "1";
 const { botUtilities } = require("../bot");
-const puppeteer = require("puppeteer");
+const { chromium } = require("playwright");
 const intervals = ["1m", "5m", "15m", "1h", "4h", "1D", "1W", "1M"];
-const { utilities } = require("../utilities");
 const tradingviewEngine = require("../tradingviewEngine");
 
 const execute = async (chatId, args, edit = false) => {
@@ -35,18 +34,20 @@ const execute = async (chatId, args, edit = false) => {
     </script>
   </div>`;
 
-  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
-  const page = await browser.newPage();
-  await page.setViewport({
+  const browser = await chromium.launch({ args: ["--no-sandbox"] });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.setViewportSize({
     width: 441,
     height: 466,
-    deviceScaleFactor: 1,
   });
 
   await page.setContent(content);
-  await utilities.waitXSecond(2);
-  const base = await page.screenshot({ encoding: "base64" });
-  botUtilities.sendPhoto(chatId, Buffer.from(base, "base64"));
+  await page.waitForTimeout(2000);
+
+  const screenshotPath = `./ta_${Date.now()}.png`;
+  await page.screenshot({ path: screenshotPath });
+  botUtilities.sendPhoto(chatId, screenshotPath);
   await browser.close();
 };
 

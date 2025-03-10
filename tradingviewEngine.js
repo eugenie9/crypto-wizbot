@@ -10,8 +10,6 @@ const symbolSearch = async (symbol) => {
     }
   );
 
-  console.log(JSON.stringify(response.data, null, 2));
-
   let r;
   for (let i = 0; i < response.data.length; i++) {
     r = response.data[i];
