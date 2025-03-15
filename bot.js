@@ -4,76 +4,72 @@ if (config.BOT_API_TOKEN.length < 37) {
   throw "Please configure a proper API Token for the bot.";
 }
 
-const { common } = require("./common");
+const common = require("./common");
 const commands = require("./commands/index");
 
 const TelegramBot = require("node-telegram-bot-api");
 const token = config.BOT_API_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
-bot.on("text", async (msg) => {
-  if (msg.text?.startsWith("/")) {
-    const args = msg.text.split(" ");
+const start = () => {
+  bot.on("text", async (msg) => {
+    if (msg.text?.startsWith("/")) {
+      const args = msg.text.split(" ");
 
-    for (const c of commands) {
-      if (c.triggers.includes(args[0])) {
-        const { command } = require(`./commands/${c.path}`);
-        command.execute(msg.chat.id, args);
-        return;
-      }
-    }
-  }
-});
-
-bot.on("callback_query", async function onCallbackQuery(callbackQuery) {
-  const actDifferently = ["chartUpdate"];
-
-  const action = callbackQuery.data;
-
-  if (action) {
-    const args = action.split(" ");
-    if (!actDifferently.includes(args[0])) {
-      const msg = callbackQuery;
-      if (msg.message) {
-        const chatId = msg.message.chat.id;
-        const msgId = msg.message.message_id;
-
-        for (const c of commands) {
-          if (c.triggers.includes(`${args[0]}`)) {
-            const { command } = require(`./commands/${c.path}`);
-            command.execute(chatId, args, { msgId });
-            return;
-          }
+      for (const c of commands) {
+        if (c.triggers.includes(args[0])) {
+          const { command } = require(`./commands/${c.path}`);
+          command.execute(msg, args);
+          return;
         }
       }
     }
+  });
 
-    if (action.startsWith("chartUpdate")) {
+  bot.on("callback_query", async function onCallbackQuery(callbackQuery) {
+    const actDifferently = ["chartUpdate"];
+
+    const action = callbackQuery.data;
+
+    if (action) {
       const args = action.split(" ");
-      const msg = callbackQuery;
-      if (msg.message) {
-        const chatId = msg.message.chat.id;
-        const msgId = msg.message.message_id;
-
-        // If current and asked intervals are different
-        if (args[3] != args[4]) {
+      if (!actDifferently.includes(args[0])) {
+        const msg = callbackQuery;
+        if (msg.message) {
           for (const c of commands) {
-            if (c.triggers.includes(`/${args[1]}`)) {
+            if (c.triggers.includes(`${args[0]}`)) {
               const { command } = require(`./commands/${c.path}`);
-              command.execute(chatId, args, {
-                msgId,
-                pair: args[2],
-                interval: args[4],
-              });
+              command.execute(msg, args, { msgId: msg.message.message_id });
               return;
             }
           }
         }
       }
-      return;
+
+      if (action.startsWith("chartUpdate")) {
+        const args = action.split(" ");
+        const msg = callbackQuery;
+        if (msg.message) {
+          // If current and asked intervals are different
+          if (args[3] != args[4]) {
+            for (const c of commands) {
+              if (c.triggers.includes(`/${args[1]}`)) {
+                const { command } = require(`./commands/${c.path}`);
+                command.execute(msg, args, {
+                  msgId: msg.message.message_id,
+                  pair: args[2],
+                  interval: args[4],
+                });
+                return;
+              }
+            }
+          }
+        }
+        return;
+      }
     }
-  }
-});
+  });
+};
 
 const sendMessage = (chatId, msg, form = {}) => {
   if (
@@ -195,11 +191,18 @@ const editPhoto = (chatId, msgId, photo, form) => {
   }
 };
 
+const getDictionary = (msg, dictionary) => {
+  const language = msg.from?.language_code || "en";
+  return dictionary[language] || dictionary["en"];
+};
+
 const botUtilities = {
+  start,
   sendMessage,
   editMessage,
   sendPhoto,
   editPhoto,
+  getDictionary,
 };
 
 module.exports.botUtilities = botUtilities;
