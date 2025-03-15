@@ -40,7 +40,7 @@ for (const l of language) {
   languages[l.shortcut] = language;
 }
 
-const common = {
+module.exports = {
   intervals,
   pairQuotes,
   pairsInfo,
@@ -54,5 +54,3 @@ const common = {
   languages,
   heatMapGenerated,
 };
-
-module.exports.common = common;

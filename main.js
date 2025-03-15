@@ -2,7 +2,7 @@ const { botUtilities } = require("./bot");
 const { binanceUtilities } = require("./binanceEngine");
 const { databaseEngine } = require("./databaseEngine");
 const { coinGeckoUtilities } = require("./coingeckoEngine");
-const { common } = require("./common");
+const common = require("./common");
 const config = require("./config");
 
 // This is just to ensure prices are almost up-to date when system is restarted.
@@ -29,6 +29,7 @@ const start = async () => {
     await binanceUtilities.initExchangeInfo();
     binanceUtilities.startFetchingPrices();
     await coinGeckoUtilities.fetchIDs();
+    botUtilities.start();
     botUtilities.sendMessage(config.superuser, "*System started*", {
       parse_mode: "Markdown",
     });

@@ -1,6 +1,6 @@
 // This is for Coingecko API v3
 // https://www.coingecko.com/en/api
-const { common } = require("./common");
+const common = require("./common");
 const axios = require("axios");
 const base = "https://api.coingecko.com/api/v3/";
 

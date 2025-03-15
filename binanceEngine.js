@@ -1,5 +1,5 @@
 const binanceLib = require("node-binance-api");
-const { common } = require("./common");
+const common = require("./common");
 const { databaseEngine } = require("./databaseEngine");
 const markets = [];
 const quotes = {};
@@ -117,19 +117,16 @@ const doesPairExist = (pair) => {
       return p.tokenName + p.marketName;
     }
   }
-
-  const quote = quotes[pair.split("")[0]];
-
-  if (quote?.length > 0) {
-    if (quote.includes("USDT")) {
+  if (quotes[pair]?.length > 0) {
+    if (quotes[pair].includes("USDT")) {
       return pair + "USDT";
     }
 
-    if (quote.includes("BTC")) {
+    if (quotes[pair].includes("BTC")) {
       return pair + "BTC";
     }
 
-    return pair + quote[0];
+    return pair + quotes[pair][0];
   }
 
   return false;

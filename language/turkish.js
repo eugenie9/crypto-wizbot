@@ -47,12 +47,10 @@ const days = [
 
 const daysShort = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
-const language = {
+module.exports = {
   errorMessages,
   months,
   monthsShort,
   days,
   daysShort,
 };
-
-module.exports.language = language;

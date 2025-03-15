@@ -1,5 +1,5 @@
-const { common } = require("./common");
-const { language } = require("./language/english");
+const common = require("./common");
+const language = require("./language/english");
 
 const waitXSecond = async (x) => {
   await new Promise((done) => setTimeout(done, x * 1000));

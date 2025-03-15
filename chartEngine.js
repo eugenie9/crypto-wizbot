@@ -84,15 +84,15 @@ const sendChart = (
 
       if (edit) {
         botUtilities.editPhoto(chatId, edit.msgId, image, {
-          caption: "*Hey*",
+          caption: `*${pair} ${interval}*`,
           parse_mode: "Markdown",
           reply_markup: { inline_keyboard: [keyboard] },
         });
       } else {
         botUtilities.sendPhoto(chatId, image, {
-          caption: "*Hey*",
+          caption: `*${pair} ${interval}*`,
           parse_mode: "Markdown",
-          reply_markup: { inline_keyboard: [keyboard] },
+          // reply_markup: { inline_keyboard: [keyboard] },
         });
       }
       return;

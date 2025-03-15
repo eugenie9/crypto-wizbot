@@ -44,12 +44,10 @@ const days = [
 ];
 const daysShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const language = {
+module.exports = {
   errorMessages,
   months,
   monthsShort,
   days,
   daysShort,
 };
-
-module.exports.language = language;
