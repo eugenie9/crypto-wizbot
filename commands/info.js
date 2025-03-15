@@ -1,20 +1,28 @@
 const { botUtilities } = require("../bot");
 const { coinGeckoUtilities } = require("../coingeckoEngine");
 const utilities = require("../utilities");
-const { common } = require("../common");
-const code = "tr";
 
-const execute = async (chatId, args, edit = false) => {
+const _dictionary = {
+  en: {
+    pairDoesNotExist:
+      "The coin/token you are trying to inquire is not available in the exchanges that I supported.",
+  },
+  tr: {
+    pairDoesNotExist:
+      "Sorgulamaya çalıştığınız koin/token, desteklemiş olduğum borsalarda bulunmuyor.",
+  },
+};
+
+const execute = async (msg, args, edit = false) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+  const dictionary = botUtilities.getDictionary(msg, _dictionary);
+
   let text = "<code>";
   const symbol = args.length == 1 ? "btc" : args[1].toLowerCase();
   const id = utilities.findCoinGeckoID(symbol);
 
   if (!id) {
-    botUtilities.sendMessage(
-      chatId,
-      common.languages[code].errorMessages.pairDoesNotExist,
-      { parse_mode: "HTML" }
-    );
+    botUtilities.sendMessage(chatId, dictionary.pairDoesNotExist);
     return;
   }
 

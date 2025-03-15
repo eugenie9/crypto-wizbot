@@ -2,6 +2,33 @@ process.env.NTBA_FIX_350 = "1";
 const { botUtilities } = require("../bot");
 const { chromium } = require("playwright");
 
+const _dictionary = {
+  en: {
+    heatmap: "Heatmap",
+    "change|60": "1 Hour",
+    "change|240": "4 Hours",
+    change: "1 Day",
+    "Perf.W": "1 Week",
+    "Perf.1M": "1 Month",
+    "Perf.3M": "3 Months",
+    "Perf.6M": "6 Months",
+    "Perf.1Y": "1 Year",
+    "Perf.YTD": "Year to Date",
+  },
+  tr: {
+    heatmap: "Isı Haritası",
+    "change|60": "1 Saat",
+    "change|240": "4 Saat",
+    change: "1 Gün",
+    "Perf.W": "1 Hafta",
+    "Perf.1M": "1 Ay",
+    "Perf.3M": "3 Ay",
+    "Perf.6M": "6 Ay",
+    "Perf.1Y": "1 Yıl",
+    "Perf.YTD": "Yıl Başından Bugüne",
+  },
+};
+
 const intervals = [
   ["1H", "change|60"],
   ["4H", "change|240"],
@@ -14,19 +41,10 @@ const intervals = [
   ["YTD", "Perf.YTD"],
 ];
 
-const intervalToString = {
-  "change|60": "1 Hour",
-  "change|240": "4 Hours",
-  change: "1 Day",
-  "Perf.W": "1 Week",
-  "Perf.1M": "1 Month",
-  "Perf.3M": "3 Months",
-  "Perf.6M": "6 Months",
-  "Perf.1Y": "1 Year",
-  "Perf.YTD": "Year to Date",
-};
+const execute = async (msg, args, edit = false) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+  const dictionary = botUtilities.getDictionary(msg, _dictionary);
 
-const execute = async (chatId, args, edit = false) => {
   // Default values
   let blockColor = "";
   let caption = "";
@@ -42,10 +60,10 @@ const execute = async (chatId, args, edit = false) => {
   });
 
   if (blockColor) {
-    caption = `<b>Heatmap for ${intervalToString[blockColor]}</b>`;
+    caption = `<b>${dictionary.heatmap} - ${dictionary[blockColor]}</b>`;
   } else {
     blockColor = "change";
-    caption = `<b>Heatmap for 1 Day</b>`;
+    caption = `<b>${dictionary.heatmap} - ${dictionary.change}</b>`;
   }
 
   // Create the heatmap widget HTML

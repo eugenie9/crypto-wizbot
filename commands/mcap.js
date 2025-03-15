@@ -1,18 +1,34 @@
 const { botUtilities } = require("../bot");
+const { getOrFallback } = require("../cache");
 const { coinGeckoUtilities } = require("../coingeckoEngine");
+const utilities = require("../utilities");
 
-const howManySpace = (text, limit) => {
-  let space = "";
-  for (let i = 0; i < limit - text.length; i++) {
-    space += " ";
-  }
-
-  return space;
+const _dictionary = {
+  en: {
+    total: "TOTAL",
+    volume: "VOLUME",
+    dominance: "Dominance",
+    top10: "TOP10",
+    refresh: "Refresh",
+  },
+  tr: {
+    total: "TOPLAM",
+    volume: "HACİM",
+    dominance: "Baskınlık",
+    top10: "TOP10",
+    refresh: "Yenile",
+  },
 };
 
-const execute = async (chatId, args, edit = false) => {
+const execute = async (msg, args, edit = false) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+  const dictionary = botUtilities.getDictionary(msg, _dictionary);
+
   try {
-    const data = await coinGeckoUtilities.getTop10MarketCapPercentages();
+    const data = await getOrFallback({
+      key: "top10mcap",
+      fallback: async () => coinGeckoUtilities.getTop10MarketCapPercentages(),
+    });
     let { mcap, volume } = data;
     const percentages = data.dominance;
     let total = 0;
@@ -20,24 +36,26 @@ const execute = async (chatId, args, edit = false) => {
     mcap = mcap.toLocaleString(undefined, { maximumFractionDigits: 0 });
     volume = volume.toLocaleString(undefined, { maximumFractionDigits: 0 });
 
+    const textKeys = [dictionary.total, dictionary.volume];
+    const space = utilities.howManySpace;
+    const longest = utilities.findLongest;
+    const format = (text) => `${text}${space(text, longest(textKeys))}:`;
+
+    const mcapValues = [mcap, volume];
+    const formatMcap = (text) => `${space(text, longest(mcapValues))}${text}$`;
+
     let text = "<code>";
-    text += `TOTAL  ${howManySpace(mcap, 17)}${mcap}$\n`;
-    text += `VOLUME ${howManySpace(volume, 17)}${volume}$\n\n`;
-    text += `${howManySpace("", 6)} Dominance\n`;
+    text += `${format(dictionary.total)} ${formatMcap(mcap)}\n`;
+    text += `${format(dictionary.volume)} ${formatMcap(volume)}\n\n`;
+    text += `${space("", 6)} ${dictionary.dominance}\n`;
 
     for (const c in percentages) {
       total += percentages[c];
       const p = parseFloat(percentages[c]).toFixed(2);
-      text += `${c.toUpperCase()}${howManySpace(c, 6)} ${howManySpace(
-        p,
-        8
-      )}${p}%\n`;
+      text += `${c.toUpperCase()}${space(c, 6)} ${space(p, 8)}${p}%\n`;
     }
     total = parseFloat(total).toFixed(2);
-    text += `TOP10${howManySpace("TOP10", 6)} ${howManySpace(
-      total,
-      8
-    )}${total}%</code>\n`;
+    text += `${format(dictionary.top10)}${space(total, 8)}${total}%</code>\n`;
 
     let callback_data = "";
     for (let i = 0; i < args.length; i++) {
@@ -51,7 +69,7 @@ const execute = async (chatId, args, edit = false) => {
     const options = {
       parse_mode: "HTML",
       reply_markup: {
-        inline_keyboard: [[{ text: "Refresh", callback_data: callback_data }]],
+        inline_keyboard: [[{ text: dictionary.refresh, callback_data }]],
       },
     };
     if (edit) {
@@ -60,6 +78,7 @@ const execute = async (chatId, args, edit = false) => {
     }
     botUtilities.sendMessage(chatId, text, options);
   } catch (e) {
+    console.log(e);
     botUtilities.sendMessage(chatId, "error in mcap");
   }
 };

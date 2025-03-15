@@ -1,28 +1,23 @@
 const { botUtilities } = require("../bot");
+const commands = require("./index");
+const code = "tr";
 
-const execute = async (chatId, args, edit = false) => {
-  // Default: english
-  let lang = args.length < 2 ? "en" : args[1];
+/**
+ * Execute the help command
+ * @param {Object} msg - The full message object from Telegram
+ * @param {Array} args - The command arguments
+ * @param {Object|null} options - Additional options
+ */
+const execute = async (msg, args, options = null) => {
+  // Extract chatId from the message object
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
 
-  const languages = require("../language/index");
-  const allowedLanguages = [];
-  for (const l of languages) {
-    allowedLanguages.push(l.shortcut);
+  let text = "<b>Commands</b>\n";
+  for (const c of commands) {
+    text += `${c.triggers[0]} - ${c.description[code]}\n`;
   }
 
-  // If user sends an invalid shortcut, english is set as a language.
-  lang = allowedLanguages.includes(lang) ? lang : "en";
-
-  const commands = require("./index");
-  let text = "";
-
-  if (allowedLanguages.includes(lang)) {
-    for (const c of commands) {
-      text += `${c.triggers[0]} - ${c.description[lang]}\n`;
-    }
-  }
-
-  botUtilities.sendMessage(chatId, text);
+  botUtilities.sendMessage(chatId, text, { parse_mode: "HTML" });
 };
 
 const command = {

@@ -96,7 +96,9 @@ const types = [
   "hellow",
 ];
 
-const execute = async (chatId, args, edit = false) => {
+const execute = async (msg, args, edit = false) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+
   let pair = args.length < 2 ? "btcusdt" : args[1];
   const theme = args.includes("dark") ? "dark" : "light";
   const details = args.includes("details") ? `"details": true,` : "";

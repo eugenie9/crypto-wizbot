@@ -1,10 +1,25 @@
 const { botUtilities } = require("../bot");
+const { getOrFallback } = require("../cache");
 const { coinGeckoUtilities } = require("../coingeckoEngine");
 const utilities = require("../utilities");
-const code = "tr";
 
-const execute = async (chatId, args, edit = false) => {
-  const data = await coinGeckoUtilities.getTrendingCoins();
+const _dictionary = {
+  en: {
+    trending: "🔥Trending Coins",
+  },
+  tr: {
+    trending: "🔥Popüler Koinler",
+  },
+};
+
+const execute = async (msg, args, edit = false) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+  const dictionary = botUtilities.getDictionary(msg, _dictionary);
+
+  const data = await getOrFallback({
+    key: "trending",
+    fallback: async () => coinGeckoUtilities.getTrendingCoins(),
+  });
   const names = [];
   const symbols = [];
 
@@ -16,13 +31,17 @@ const execute = async (chatId, args, edit = false) => {
   const maxN = utilities.findLongest(names);
   const maxS = utilities.findLongest(symbols);
 
-  let text = "<code>🔥Trending Coins\n\n";
+  const formatName = (name) => `${name}${utilities.howManySpace(name, maxN)}`;
+  const formatSymbol = (symbol) =>
+    `(${symbol}) ${utilities.howManySpace(symbol, maxS)}`;
+
+  let text = `<code>${dictionary.trending}\n\n`;
 
   for (let c of data.coins) {
     c = c.item;
-    text += `${c.name}${utilities.howManySpace(c.name, maxN)} (${
-      c.symbol
-    }) ${utilities.howManySpace(c.symbol, maxS)}#${c.market_cap_rank}\n`;
+    text += `${formatName(c.name)} ${formatSymbol(c.symbol)} #${
+      c.market_cap_rank
+    }\n`;
   }
 
   text += "</code>";

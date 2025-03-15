@@ -1,16 +1,43 @@
 const { coinGeckoUtilities } = require("../coingeckoEngine");
 const { binanceUtilities } = require("../binanceEngine");
-const { common } = require("../common");
 const { botUtilities } = require("../bot");
 const utilities = require("../utilities");
-const code = "tr";
 
-const execute = async (chatId, args, edit = false) => {
+const _dictionary = {
+  en: {
+    change: "Change",
+    high: "High",
+    average: "Average",
+    low: "Low",
+    volume: "Volume",
+    marketCap: "Market Cap",
+    refresh: "Refresh",
+    pairDoesNotExist:
+      "The coin/token you are trying to inquire is not available in the exchanges that I supported.",
+  },
+  tr: {
+    change: "Değişim",
+    high: "Yüksek",
+    average: "Ortalama",
+    low: "Düşük",
+    volume: "Hacim",
+    marketCap: "Piyasa Değeri",
+    refresh: "Yenile",
+    pairDoesNotExist:
+      "Sorgulamaya çalıştığınız koin/token, desteklemiş olduğum borsalarda bulunmuyor.",
+  },
+};
+
+const execute = async (msg, args, edit = false) => {
+  // Extract chatId from the message object
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+  const dictionary = botUtilities.getDictionary(msg, _dictionary);
+
   let pair = args.length == 1 ? "BTCUSDT" : args[1].toUpperCase();
   pair = binanceUtilities.doesPairExist(pair);
 
   if (!pair) {
-    const id = utilities.findCoinGeckoID(args[1].toLowerCase());
+    const id = utilities.findCoinGeckoID(args[1]?.toLowerCase());
     if (id) {
       const data = await coinGeckoUtilities.getPairData(id);
       let text = "<code>";
@@ -44,32 +71,42 @@ const execute = async (chatId, args, edit = false) => {
         }
       }
 
-      text += `Cap: #${data.market_cap_rank}`;
+      text += `${dictionary.marketCap}: #${data.market_cap_rank}`;
       text += "</code>";
       botUtilities.sendMessage(chatId, text, { parse_mode: "HTML" });
       return;
     }
-    botUtilities.sendMessage(
-      chatId,
-      common.languages[code].errorMessages["pairDoesNotExist"]
-    );
+    botUtilities.sendMessage(chatId, dictionary.pairDoesNotExist);
     return;
   }
 
   const data = await binanceUtilities.getPrevDay(pair);
   const market = utilities.getQuote(pair);
-  let text = `<code>${pair}${utilities.howManySpace(pair, 7)}: ${
-    data.lastPrice
-  }\n\n`;
 
-  text += `Change : ${parseFloat(data.priceChangePercent).toFixed(2)}%\n`;
-  text += `High   : ${data.highPrice}\n`;
-  text += `Average: ${data.weightedAvgPrice}\n`;
-  text += `Low    : ${data.lowPrice}\n`;
-  text += `Volume : ${parseFloat(
+  const textKeys = [
+    pair,
+    dictionary.change,
+    dictionary.high,
+    dictionary.average,
+    dictionary.low,
+    dictionary.volume,
+  ];
+
+  const format = (text) =>
+    `${text}${utilities.howManySpace(text, utilities.findLongest(textKeys))}:`;
+
+  let text = "<code>";
+  text += `${format(pair)} ${data.lastPrice}\n\n`;
+  text += `${format(dictionary.change)} ${parseFloat(
+    data.priceChangePercent
+  ).toFixed(2)}%\n`;
+  text += `${format(dictionary.high)} ${data.highPrice}\n`;
+  text += `${format(dictionary.average)} ${data.weightedAvgPrice}\n`;
+  text += `${format(dictionary.low)} ${data.lowPrice}\n`;
+  text += `${format(dictionary.volume)} ${parseFloat(
     data.quoteVolume
   ).toLocaleString()} ${market}\n`;
-  text += `</code>`;
+  text += "</code>";
 
   let callback_data = "";
   for (let i = 0; i < args.length; i++) {
@@ -83,7 +120,9 @@ const execute = async (chatId, args, edit = false) => {
   const options = {
     parse_mode: "HTML",
     reply_markup: {
-      inline_keyboard: [[{ text: "Refresh", callback_data: callback_data }]],
+      inline_keyboard: [
+        [{ text: dictionary.refresh, callback_data: callback_data }],
+      ],
     },
   };
   if (edit) {

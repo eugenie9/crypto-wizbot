@@ -3,7 +3,8 @@ const { botUtilities } = require("../bot");
 const utilities = require("../utilities");
 const axios = require("axios");
 
-const execute = async (chatId, args, edit = false) => {
+const execute = async (msg, args, edit = false) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
   let fundingRates = await axios.get(
     "https://fapi.binance.com/fapi/v1/premiumIndex"
   );
@@ -52,13 +53,14 @@ const execute = async (chatId, args, edit = false) => {
   }
   let text = "<code>";
 
-  const max = utilities.findLongest(pairs);
+  const format = (text) =>
+    `${text}${utilities.howManySpace(text, utilities.findLongest(pairs))}:`;
 
   for (let i = 0; i < 10; i++) {
     const f = fundingRates[i];
-    text += `${f.symbol}${utilities.howManySpace(f.symbol, max)} ${parseFloat(
-      f.lastFundingRate * 100
-    ).toFixed(3)}%\n`;
+    text += `${format(f.symbol)} ${parseFloat(f.lastFundingRate * 100).toFixed(
+      3
+    )}%\n`;
   }
 
   text += `</code>`;

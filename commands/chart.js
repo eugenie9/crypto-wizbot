@@ -1,15 +1,27 @@
 const { binanceUtilities } = require("../binanceEngine");
 const { chartUtilities } = require("../chartEngine");
-const { common } = require("../common");
 const { botUtilities } = require("../bot");
-const code = "tr";
 
-const execute = async (chatId, args, edit = false) => {
+const _dictionary = {
+  en: {
+    pairDoesNotExist:
+      "The coin/token you are trying to inquire is not available in the exchanges that I supported.",
+  },
+  tr: {
+    pairDoesNotExist:
+      "Sorgulamaya çalıştığınız koin/token, desteklemiş olduğum borsalarda bulunmuyor.",
+  },
+};
+
+const execute = async (msg, args, edit = false) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+  const dictionary = botUtilities.getDictionary(msg, _dictionary);
+
   let pair, interval;
   if (args.length == 1) args = ["/chart", "BTCUSDT", "1h"];
   if (args.length == 2) args[2] = "1h";
 
-  if (edit) {
+  if (edit && typeof edit === "object") {
     pair = edit.pair.toUpperCase();
     interval = edit.interval;
   } else {
@@ -18,18 +30,12 @@ const execute = async (chatId, args, edit = false) => {
   }
 
   if (!binanceUtilities.doesPairExist(pair)) {
-    botUtilities.sendMessage(
-      chatId,
-      common.languages[code].errorMessages["pairDoesNotExist"]
-    );
+    botUtilities.sendMessage(chatId, dictionary.pairDoesNotExist);
     return;
   }
 
   if (!binanceUtilities.doesIntervalExist(interval)) {
-    botUtilities.sendMessage(
-      chatId,
-      common.languages[code].errorMessages["intervalDoesNotExist"]
-    );
+    botUtilities.sendMessage(chatId, dictionary.intervalDoesNotExist);
   }
 
   const ticks = await binanceUtilities.getTicks(pair, interval, 200);
@@ -37,8 +43,8 @@ const execute = async (chatId, args, edit = false) => {
   const candlestick = chartUtilities.getDataTable();
   const data = [];
 
-  for (i = 0; i < ticks.length; i++) {
-    color =
+  for (let i = 0; i < ticks.length; i++) {
+    const color =
       parseFloat(ticks[i][1]) > parseFloat(ticks[i][4]) ? "#ff0000" : "#00ff00"; // volume bar colors
 
     data.push([
@@ -85,13 +91,13 @@ const execute = async (chatId, args, edit = false) => {
   // Volume bars
 
   // RSI mapping
-  mapping_rsi20 = candlestick.mapAs();
+  const mapping_rsi20 = candlestick.mapAs();
   mapping_rsi20.addField("value", 7);
-  mapping_rsi30 = candlestick.mapAs();
+  const mapping_rsi30 = candlestick.mapAs();
   mapping_rsi30.addField("value", 8);
-  mapping_rsi70 = candlestick.mapAs();
+  const mapping_rsi70 = candlestick.mapAs();
   mapping_rsi70.addField("value", 9);
-  mapping_rsi80 = candlestick.mapAs();
+  const mapping_rsi80 = candlestick.mapAs();
   mapping_rsi80.addField("value", 10);
   // RSI mapping
 
@@ -118,8 +124,22 @@ const execute = async (chatId, args, edit = false) => {
   legend.align("middle");
   plot.legend().itemsFormatter(function () {
     return [
-      { text: "SMA50", iconFill: "orange" },
-      { text: "EMA20", iconFill: "blue" },
+      {
+        text: "SMA50",
+        iconFill: "orange",
+        fontFamily: "Arial",
+        fontWeight: "normal",
+        fontStyle: "normal",
+        fontSize: 12,
+      },
+      {
+        text: "EMA20",
+        iconFill: "blue",
+        fontFamily: "Arial",
+        fontWeight: "normal",
+        fontStyle: "normal",
+        fontSize: 12,
+      },
     ];
   });
 

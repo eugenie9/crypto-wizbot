@@ -174,7 +174,9 @@ const generateChart = async (data) => {
   return imagePath;
 };
 
-const execute = async (chatId, args, edit = {}) => {
+const execute = async (msg, args, edit = {}) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+
   try {
     if (Date.now() - cache.fearChart.generated < 5 * 60 * 1000) {
       botUtilities.sendPhoto(chatId, "./fear_chart.png", {

@@ -1,19 +1,30 @@
 const { binanceUtilities } = require("../binanceEngine");
-const { common } = require("../common");
 const { botUtilities } = require("../bot");
 const utilities = require("../utilities");
-const code = "en";
 
-const execute = async (chatId, args, edit = false) => {
+const _dictionary = {
+  en: {
+    pairDoesNotExist:
+      "The coin/token you are trying to inquire is not available in the exchanges that I supported.",
+    refresh: "Refresh",
+  },
+  tr: {
+    pairDoesNotExist:
+      "Sorgulamaya çalıştığınız koin/token, desteklemiş olduğum borsalarda bulunmuyor.",
+    refresh: "Yenile",
+  },
+};
+
+const execute = async (msg, args, edit = false) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+  const dictionary = botUtilities.getDictionary(msg, _dictionary);
+
   let pair = args.length == 1 ? "BTCUSDT" : args[1].toUpperCase();
 
   pair = binanceUtilities.doesPairExist(pair);
 
   if (!pair) {
-    botUtilities.sendMessage(
-      chatId,
-      common.languages[code].errorMessages["pairDoesNotExist"]
-    );
+    botUtilities.sendMessage(chatId, dictionary.pairDoesNotExist);
     return;
   }
 
@@ -81,6 +92,12 @@ const execute = async (chatId, args, edit = false) => {
     if (bNum > maxPriceLength) maxPriceLength = bNum;
   }
 
+  const formatPercentage = (text) =>
+    `${utilities.howManySpace(text, 5)}${text}%`;
+  const formatPrice = (text) => `${parseFloat(text).toFixed(maxPriceLength)}`;
+  const formatDepth = (text) =>
+    `${utilities.howManySpace(text, maxDepthLength)}${text}`;
+
   let text = "<code>";
   // To store previous total
 
@@ -94,9 +111,9 @@ const execute = async (chatId, args, edit = false) => {
       continue;
     }
     text +=
-      `${utilities.howManySpace(percentage, 5)}${percentage}% ` +
-      `${parseFloat(asks[i].price).toFixed(maxPriceLength)} ` +
-      `${utilities.howManySpace(total, maxDepthLength)}${total} ` +
+      `${formatPercentage(percentage)} ` +
+      `${formatPrice(asks[i].price)} ` +
+      `${formatDepth(total)} ` +
       `${market}\n`;
   }
 
@@ -113,9 +130,9 @@ const execute = async (chatId, args, edit = false) => {
     }
     pt = total;
     text +=
-      `${utilities.howManySpace(percentage, 5)}${percentage}% ` +
-      `${parseFloat(bids[i].price).toFixed(maxPriceLength)} ` +
-      `${utilities.howManySpace(total, maxDepthLength)}${total} ` +
+      `${formatPercentage(percentage)} ` +
+      `${formatPrice(bids[i].price)} ` +
+      `${formatDepth(total)} ` +
       `${market}\n`;
   }
 
@@ -133,7 +150,9 @@ const execute = async (chatId, args, edit = false) => {
   const options = {
     parse_mode: "HTML",
     reply_markup: {
-      inline_keyboard: [[{ text: "Refresh", callback_data: callback_data }]],
+      inline_keyboard: [
+        [{ text: dictionary.refresh, callback_data: callback_data }],
+      ],
     },
   };
   if (edit) {

@@ -4,7 +4,9 @@ const { chromium } = require("playwright");
 const intervals = ["1m", "5m", "15m", "1h", "4h", "1D", "1W", "1M"];
 const tradingviewEngine = require("../tradingviewEngine");
 
-const execute = async (chatId, args, edit = false) => {
+const execute = async (msg, args, edit = false) => {
+  const chatId = msg.chat ? msg.chat.id : msg.message.chat.id;
+
   let pair = args.length < 2 ? "btcusdt" : args[1];
 
   let interval = "";
