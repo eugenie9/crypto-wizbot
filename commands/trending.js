@@ -19,6 +19,7 @@ const execute = async (msg, args, edit = false) => {
   const data = await getOrFallback({
     key: "trending",
     fallback: async () => coinGeckoUtilities.getTrendingCoins(),
+    ttl: 15 * 60 * 1000,
   });
   const names = [];
   const symbols = [];
